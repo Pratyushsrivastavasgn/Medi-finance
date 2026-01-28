@@ -77,7 +77,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen">\n      {/* Hero Section */}
+    <div className="min-h-screen">     {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-teal-600 text-white overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
