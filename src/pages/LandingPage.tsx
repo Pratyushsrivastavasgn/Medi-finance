@@ -4,12 +4,8 @@ import {
   Shield, 
   CreditCard, 
   Calculator, 
-  CheckCircle, 
-  TrendingUp,
-  Users,
-  Award,
+  CheckCircle,
   ArrowRight,
-  Heart,
   AlertCircle,
   FileText
 } from 'lucide-react';
@@ -87,7 +83,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <img src="/src/public/images/logo.png" alt="MediFinance Logo" className="h-24 w-24 object-contain drop-shadow-2xl" />
+              <img src="/images/logo.png" alt="MediFinance Logo" className="h-24 w-24 object-contain drop-shadow-2xl" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-4">
               MediFinance

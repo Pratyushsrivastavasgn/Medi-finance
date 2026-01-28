@@ -31,6 +31,8 @@ const hospitals = [
   // Add more mock hospitals as needed
 ];
 
+// Reserved for future use - insurance policy data
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const insurancePolicies = [
   {
     id: '1',
@@ -56,12 +58,12 @@ const financingOptions = [
 ];
 
 // Routes
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', message: 'MediFinance API is running' });
 });
 
 app.get('/api/hospitals', (req, res) => {
-  const { procedure, location, maxDistance } = req.query;
+  const { location, maxDistance } = req.query;
   let filtered = hospitals;
   
   if (location) {
@@ -83,8 +85,8 @@ app.get('/api/hospitals/:id', (req, res) => {
   res.json({ data: hospital });
 });
 
-app.post('/api/insurance/analyze', (req, res) => {
-  const { policyDocument, procedure } = req.body;
+app.post('/api/insurance/analyze', (_req, res) => {
+  // Mock data - not using request body
   
   // Simulate AI analysis
   setTimeout(() => {
@@ -119,7 +121,7 @@ app.get('/api/financing', (req, res) => {
 });
 
 app.post('/api/cost-estimate', (req, res) => {
-  const { hospitalId, procedure, roomType, stayDuration, hasInsurance } = req.body;
+  const { hospitalId, roomType, stayDuration, hasInsurance } = req.body;
   
   const hospital = hospitals.find(h => h.id === hospitalId);
   if (!hospital) {

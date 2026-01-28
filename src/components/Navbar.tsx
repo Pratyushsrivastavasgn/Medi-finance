@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Heart, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -22,7 +22,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
-              <img src="/src/public/images/logo.png" alt="MediFinance Logo" className="h-10 w-10 object-contain" />
+              <img src="/images/logo.png" alt="MediFinance Logo" className="h-10 w-10 object-contain" />
               <div className="flex flex-col">
                 <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">
                   MediFinance

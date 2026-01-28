@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Info, Shield, DollarSign, Clock, XCircle } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function InsuranceAnalysis() {
-  const [policyUploaded, setPolicyUploaded] = useState(false);
+  const [, setPolicyUploaded] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
 

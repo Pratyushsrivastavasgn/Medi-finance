@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CreditCard, Calculator, CheckCircle, TrendingUp, Shield, Clock, Percent, DollarSign } from 'lucide-react';
+import { CreditCard, Calculator, CheckCircle, TrendingUp, Shield, Clock, Percent } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function FinancingOptions() {

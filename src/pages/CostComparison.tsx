@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Search, MapPin, Filter, Star, TrendingUp, DollarSign, Award, Navigation } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { Search, MapPin, Star, TrendingUp, DollarSign, Award, Navigation } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Hospital } from '../types';
 
 export default function CostComparison() {
@@ -181,8 +181,6 @@ export default function CostComparison() {
     'Doctor Fees': h.pricing.doctorFees / 1000,
     'Room & Others': (h.pricing.roomCharges + h.pricing.consumables + h.pricing.miscCharges) / 1000
   }));
-
-  const COLORS = ['#1890ff', '#52c41a', '#faad14', '#f5222d'];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

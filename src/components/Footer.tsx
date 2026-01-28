@@ -1,4 +1,4 @@
-import { Heart, Mail, Phone, MapPin, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-1">
             <div className="flex items-center space-x-3 mb-4">
-              <img src="/src/public/images/logo.png" alt="MediFinance Logo" className="h-8 w-8 object-contain" />
+              <img src="/images/logo.png" alt="MediFinance Logo" className="h-8 w-8 object-contain" />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-white">MediFinance</span>
                 <span className="text-xs text-gray-400 -mt-1">Health & Wealth, Aligned</span>
