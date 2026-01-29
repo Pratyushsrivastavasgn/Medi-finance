@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { CreditCard, Calculator, CheckCircle, TrendingUp, Shield, Clock, Percent } from 'lucide-react';
-import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { CreditCard, CheckCircle, TrendingUp, Shield, Clock, Percent } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 export default function FinancingOptions() {
   const [loanAmount, setLoanAmount] = useState(100000);
@@ -8,6 +8,14 @@ export default function FinancingOptions() {
   const [interestRate, setInterestRate] = useState(6.5);
   const [showEligibility, setShowEligibility] = useState(false);
   const [viewMode, setViewMode] = useState<'yearly' | 'monthly'>('yearly');
+  
+  // Eligibility form data
+  const [userAge, setUserAge] = useState('');
+  const [monthlyIncome, setMonthlyIncome] = useState('');
+  const [creditScore, setCreditScore] = useState('');
+  const [employmentType, setEmploymentType] = useState('');
+  const [existingLoans, setExistingLoans] = useState('');
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
 
   const financingProviders = [
     {
@@ -75,7 +83,6 @@ export default function FinancingOptions() {
            (Math.pow(1 + monthlyRate, months) - 1);
   };
 
-  const selectedProvider = financingProviders[0];
   const emi = calculateEMI(loanAmount, interestRate, tenure);
   const totalPayment = emi * tenure;
   const totalInterest = totalPayment - loanAmount;
@@ -109,7 +116,102 @@ export default function FinancingOptions() {
     };
   });
 
-  const eligibilityCriteria = [
+  // Calculate eligibility
+  const calculateEligibility = () => {
+    const age = Number(userAge);
+    const income = Number(monthlyIncome);
+    const score = Number(creditScore);
+    const existing = Number(existingLoans);
+
+    // Age check
+    const ageEligible = age >= 21 && age <= 65;
+    
+    // Income check
+    const incomeEligible = income >= 15000;
+    
+    // Credit score check (optional but beneficial)
+    const creditScoreStatus = !creditScore ? 'not-provided' : score >= 750 ? 'excellent' : score >= 650 ? 'good' : 'fair';
+    
+    // Employment check
+    const employmentEligible = employmentType !== '';
+    
+    // Debt-to-Income ratio (EMI should not exceed 50% of income)
+    const maxAffordableEMI = income * 0.5;
+    const currentEMIBurden = existing;
+    const availableEMICapacity = maxAffordableEMI - currentEMIBurden;
+    
+    // Calculate max loan amount based on income
+    const maxLoanBasedOnIncome = availableEMICapacity * tenure;
+    
+    // Calculate max loan based on credit score
+    let maxLoanBasedOnCredit = 300000; // Default
+    if (creditScoreStatus === 'excellent') maxLoanBasedOnCredit = 500000;
+    else if (creditScoreStatus === 'good') maxLoanBasedOnCredit = 300000;
+    else if (creditScoreStatus === 'fair') maxLoanBasedOnCredit = 150000;
+    else maxLoanBasedOnCredit = 100000; // No credit score provided
+    
+    const maxEligibleAmount = Math.min(maxLoanBasedOnIncome, maxLoanBasedOnCredit);
+    
+    const isFullyEligible = ageEligible && incomeEligible && employmentEligible && maxEligibleAmount > 0;
+
+    return {
+      ageEligible,
+      incomeEligible,
+      creditScoreStatus,
+      employmentEligible,
+      maxEligibleAmount: Math.round(maxEligibleAmount),
+      availableEMICapacity: Math.round(availableEMICapacity),
+      isFullyEligible,
+      debtToIncomeRatio: Math.round((currentEMIBurden / income) * 100)
+    };
+  };
+
+  const eligibilityResult = eligibilityChecked ? calculateEligibility() : null;
+
+  const eligibilityCriteria = eligibilityResult ? [
+    { 
+      label: 'Age Requirement', 
+      requirement: '21-65 years', 
+      userValue: `${userAge} years`,
+      pass: eligibilityResult.ageEligible,
+      message: eligibilityResult.ageEligible ? 'You meet the age criteria' : 'Age must be between 21-65 years'
+    },
+    { 
+      label: 'Monthly Income', 
+      requirement: '₹15,000/month minimum', 
+      userValue: `₹${Number(monthlyIncome).toLocaleString()}/month`,
+      pass: eligibilityResult.incomeEligible,
+      message: eligibilityResult.incomeEligible ? 'Income meets minimum requirement' : 'Income should be at least ₹15,000/month'
+    },
+    { 
+      label: 'Credit Score', 
+      requirement: '650+ (Optional)', 
+      userValue: creditScore ? `${creditScore} (${eligibilityResult.creditScoreStatus})` : 'Not provided',
+      pass: true,
+      message: eligibilityResult.creditScoreStatus === 'excellent' ? 'Excellent! Eligible for higher amounts' :
+               eligibilityResult.creditScoreStatus === 'good' ? 'Good score, standard limits apply' :
+               eligibilityResult.creditScoreStatus === 'fair' ? 'Fair score, lower limits may apply' :
+               'Credit score not required for basic eligibility'
+    },
+    { 
+      label: 'Employment Status', 
+      requirement: 'Salaried/Self-employed', 
+      userValue: employmentType,
+      pass: eligibilityResult.employmentEligible,
+      message: eligibilityResult.employmentEligible ? 'Employment status verified' : 'Please select employment type'
+    },
+  ] : [];
+
+  const handleCheckEligibility = () => {
+    if (!userAge || !monthlyIncome || !employmentType || !existingLoans) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    setEligibilityChecked(true);
+    setShowEligibility(true);
+  };
+
+  const eligibilityCriteriaLegacy = [
     { label: 'Age', requirement: '21-65 years', userStatus: 'Eligible', pass: true },
     { label: 'Income', requirement: '₹15,000/month minimum', userStatus: 'Verified', pass: true },
     { label: 'Credit Score', requirement: '650+ (Optional)', userStatus: 'Not Required', pass: true },
@@ -325,7 +427,7 @@ export default function FinancingOptions() {
                 <tbody>
                   {(viewMode === 'yearly' ? yearlySchedule : repaymentSchedule.slice(0, 12)).map((item, idx) => (
                     <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-sm text-gray-900">{viewMode === 'yearly' ? item.year : item.month}</td>
+                      <td className="py-3 px-4 text-sm text-gray-900">{viewMode === 'yearly' ? ('year' in item ? item.year : '') : ('month' in item ? item.month : '')}</td>
                       <td className="py-3 px-4 text-sm text-right text-gray-900">{item.principal.toLocaleString()}</td>
                       <td className="py-3 px-4 text-sm text-right text-gray-900">{item.interest.toLocaleString()}</td>
                       <td className="py-3 px-4 text-sm text-right font-semibold text-gray-900">{item.emi.toLocaleString()}</td>
@@ -442,56 +544,245 @@ export default function FinancingOptions() {
         </div>
 
         {/* Eligibility Checker */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Eligibility Check</h2>
-              <p className="text-gray-600">Pre-qualify without affecting your credit score</p>
-            </div>
-            <button
-              onClick={() => setShowEligibility(!showEligibility)}
-              className="btn-primary"
-            >
-              {showEligibility ? 'Hide Results' : 'Check Eligibility'}
-            </button>
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Eligibility</h2>
+            <p className="text-gray-600">Get instant pre-qualification without affecting your credit score</p>
           </div>
 
-          {showEligibility && (
-            <div className="space-y-4">
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-500 rounded-full p-2">
-                    <CheckCircle className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-green-900">Congratulations! You're Eligible</h3>
-                    <p className="text-sm text-green-700">You qualify for up to ₹3,00,000 in medical financing</p>
-                  </div>
-                </div>
+          {!eligibilityChecked ? (
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Age <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={userAge}
+                  onChange={(e) => setUserAge(e.target.value)}
+                  placeholder="Enter your age"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">Must be between 21-65 years</p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                {eligibilityCriteria.map((criteria, idx) => (
-                  <div key={idx} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-1" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Monthly Income <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <input
+                    type="number"
+                    value={monthlyIncome}
+                    onChange={(e) => setMonthlyIncome(e.target.value)}
+                    placeholder="Enter monthly income"
+                    className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Minimum ₹15,000/month required</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Credit Score (Optional)
+                </label>
+                <input
+                  type="number"
+                  value={creditScore}
+                  onChange={(e) => setCreditScore(e.target.value)}
+                  placeholder="Enter credit score"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">Higher score = better loan limits (650+ recommended)</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Employment Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={employmentType}
+                  onChange={(e) => setEmploymentType(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Select employment type</option>
+                  <option value="Salaried">Salaried</option>
+                  <option value="Self-employed">Self-employed</option>
+                  <option value="Business Owner">Business Owner</option>
+                  <option value="Freelancer">Freelancer</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Existing Monthly EMI/Loan Payments <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <input
+                    type="number"
+                    value={existingLoans}
+                    onChange={(e) => setExistingLoans(e.target.value)}
+                    placeholder="Enter existing EMI amount (0 if none)"
+                    className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Total monthly payments for all existing loans/EMIs</p>
+              </div>
+
+              <div className="md:col-span-2">
+                <button
+                  onClick={handleCheckEligibility}
+                  className="w-full btn-primary py-3 text-lg"
+                >
+                  Check My Eligibility
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Results Banner */}
+              {eligibilityResult?.isFullyEligible ? (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-green-500 rounded-full p-3 flex-shrink-0">
+                      <CheckCircle className="h-8 w-8 text-white" />
+                    </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-900">{criteria.label}</div>
-                      <div className="text-sm text-gray-600">{criteria.requirement}</div>
-                      <div className="text-sm text-green-600 font-medium mt-1">{criteria.userStatus}</div>
+                      <h3 className="text-2xl font-bold text-green-900 mb-2">Congratulations! You're Eligible</h3>
+                      <p className="text-lg text-green-700 mb-3">
+                        Based on your profile, you qualify for up to <span className="font-bold">₹{eligibilityResult.maxEligibleAmount.toLocaleString()}</span> in medical financing
+                      </p>
+                      <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        <div className="bg-white rounded-lg p-3 border border-green-200">
+                          <div className="text-sm text-gray-600">Available Monthly EMI Capacity</div>
+                          <div className="text-xl font-bold text-gray-900">₹{eligibilityResult.availableEMICapacity.toLocaleString()}</div>
+                        </div>
+                        <div className="bg-white rounded-lg p-3 border border-green-200">
+                          <div className="text-sm text-gray-600">Current Debt-to-Income Ratio</div>
+                          <div className="text-xl font-bold text-gray-900">{eligibilityResult.debtToIncomeRatio}%</div>
+                          <div className="text-xs text-gray-500">Recommended: Below 50%</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ))}
+                </div>
+              ) : (
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-yellow-500 rounded-full p-3 flex-shrink-0">
+                      <Shield className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-yellow-900 mb-2">Limited Eligibility</h3>
+                      <p className="text-yellow-700">
+                        You may have limited options. Please review the criteria below and consider improving the highlighted areas.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Detailed Criteria */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Eligibility Breakdown</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {eligibilityCriteria.map((criteria, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`p-4 rounded-lg border-2 ${
+                        criteria.pass 
+                          ? 'bg-green-50 border-green-200' 
+                          : 'bg-red-50 border-red-200'
+                      }`}
+                    >
+                      <div className="flex items-start space-x-3">
+                        {criteria.pass ? (
+                          <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <div className="h-6 w-6 rounded-full border-2 border-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-red-500 text-lg font-bold">✕</span>
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-900 mb-1">{criteria.label}</div>
+                          <div className="text-sm text-gray-600 mb-1">Required: {criteria.requirement}</div>
+                          <div className="text-sm font-medium mb-1">
+                            Your Value: <span className={criteria.pass ? 'text-green-700' : 'text-red-700'}>{criteria.userValue}</span>
+                          </div>
+                          <div className={`text-sm ${criteria.pass ? 'text-green-600' : 'text-red-600'}`}>
+                            {criteria.message}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+              {/* Recommended Actions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  Recommended Next Steps
+                </h4>
+                <ul className="space-y-2 text-sm text-blue-900">
+                  {eligibilityResult?.isFullyEligible ? (
+                    <>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Review financing partners above to compare EMI options</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Apply with multiple lenders to get the best rate</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Keep your debt-to-income ratio below 40% for better terms</span>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Consider reducing existing EMI burden before applying</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Check your credit score and work on improving it to 650+</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Look for zero-cost EMI options or BNPL alternatives above</span>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </div>
+
+              {/* Privacy Notice */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <div className="flex items-start space-x-3">
-                  <Shield className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-900">
+                  <Shield className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-gray-700">
                     <strong>Privacy Protected:</strong> This eligibility check does not impact your credit score. 
-                    Your information is encrypted and secured.
+                    Your information is used solely for calculation and is not stored or shared.
                   </div>
                 </div>
               </div>
+
+              {/* Recheck Button */}
+              <button
+                onClick={() => {
+                  setEligibilityChecked(false);
+                  setShowEligibility(true);
+                }}
+                className="w-full btn-secondary py-3"
+              >
+                Check Again with Different Details
+              </button>
             </div>
           )}
         </div>
