@@ -56,15 +56,15 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>support@medifinance.health</span>
+                <span>ps8540@srmist.edu.in</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>+91-1800-MEDI-FIN</span>
+                <span>+91-9660777746</span>
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
-                <span>Bangalore, India</span>
+                <span>Chennai, India</span>
               </li>
             </ul>
           </div>

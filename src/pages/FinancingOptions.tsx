@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { CreditCard, Calculator, CheckCircle, TrendingUp, Shield, Clock, Percent } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function FinancingOptions() {
-  const [loanAmount, setLoanAmount] = useState(55000);
+  const [loanAmount, setLoanAmount] = useState(100000);
   const [tenure, setTenure] = useState(12);
+  const [interestRate, setInterestRate] = useState(6.5);
   const [showEligibility, setShowEligibility] = useState(false);
+  const [viewMode, setViewMode] = useState<'yearly' | 'monthly'>('yearly');
 
   const financingProviders = [
     {
@@ -74,21 +76,36 @@ export default function FinancingOptions() {
   };
 
   const selectedProvider = financingProviders[0];
-  const emi = calculateEMI(loanAmount, selectedProvider.interestRate, tenure);
+  const emi = calculateEMI(loanAmount, interestRate, tenure);
   const totalPayment = emi * tenure;
   const totalInterest = totalPayment - loanAmount;
 
   const repaymentSchedule = Array.from({ length: tenure }, (_, i) => {
     const month = i + 1;
-    const interestPaid = (loanAmount * selectedProvider.interestRate / 12 / 100) * (tenure - i);
-    const principalPaid = loanAmount - (loanAmount * (tenure - i - 1) / tenure);
+    const remainingPrincipal = loanAmount * (1 - (i / tenure));
+    const interestForMonth = (remainingPrincipal * interestRate) / 12 / 100;
+    const principalForMonth = emi - interestForMonth;
     
     return {
       month: `Month ${month}`,
+      year: Math.ceil(month / 12),
       emi: Math.round(emi),
-      principal: Math.round(principalPaid / tenure),
-      interest: Math.round(interestPaid / tenure),
-      balance: Math.round(loanAmount - (principalPaid))
+      principal: Math.round(principalForMonth),
+      interest: Math.round(interestForMonth),
+      balance: Math.round(loanAmount - (principalForMonth * month))
+    };
+  });
+
+  // Group by year for yearly view
+  const yearlySchedule = Array.from({ length: Math.ceil(tenure / 12) }, (_, i) => {
+    const yearNum = i + 1;
+    const monthsInYear = repaymentSchedule.filter(m => m.year === yearNum);
+    return {
+      year: `Year ${yearNum}`,
+      emi: monthsInYear.reduce((sum, m) => sum + m.emi, 0),
+      principal: monthsInYear.reduce((sum, m) => sum + m.principal, 0),
+      interest: monthsInYear.reduce((sum, m) => sum + m.interest, 0),
+      balance: monthsInYear[monthsInYear.length - 1]?.balance || 0
     };
   });
 
@@ -108,86 +125,215 @@ export default function FinancingOptions() {
           <p className="text-gray-600">Affordable payment plans for your healthcare needs</p>
         </div>
 
-        {/* EMI Calculator Card */}
-        <div className="card mb-8 bg-gradient-to-br from-primary-50 to-teal-50 border-primary-200">
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <Calculator className="h-6 w-6 mr-2 text-primary-600" />
-                EMI Calculator
-              </h2>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Loan Amount: ₹{loanAmount.toLocaleString()}
-                  </label>
-                  <input
-                    type="range"
-                    min="10000"
-                    max="500000"
-                    step="5000"
-                    value={loanAmount}
-                    onChange={(e) => setLoanAmount(Number(e.target.value))}
-                    className="w-full h-2 bg-primary-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
-                  />
-                  <div className="flex justify-between text-xs text-gray-600 mt-1">
-                    <span>₹10K</span>
-                    <span>₹5L</span>
+        {/* EMI Calculator Card - Groww Style */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">EMI Calculator</h2>
+          
+          <div className="grid lg:grid-cols-5 gap-8">
+            {/* Left side - Inputs */}
+            <div className="lg:col-span-3 space-y-8">
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-base font-medium text-gray-700">Loan amount</label>
+                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                    <span className="text-gray-500 mr-1">₹</span>
+                    <input
+                      type="number"
+                      value={loanAmount}
+                      onChange={(e) => setLoanAmount(Number(e.target.value))}
+                      className="w-24 bg-transparent text-right font-semibold text-gray-900 focus:outline-none"
+                    />
                   </div>
                 </div>
+                <input
+                  type="range"
+                  min="10000"
+                  max="1000000"
+                  step="10000"
+                  value={loanAmount}
+                  onChange={(e) => setLoanAmount(Number(e.target.value))}
+                  className="w-full h-2 bg-gradient-to-r from-primary-200 to-primary-600 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #00d09c 0%, #00d09c ${((loanAmount - 10000) / (1000000 - 10000)) * 100}%, #e5e7eb ${((loanAmount - 10000) / (1000000 - 10000)) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>₹10K</span>
+                  <span>₹10L</span>
+                </div>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tenure: {tenure} months
-                  </label>
-                  <input
-                    type="range"
-                    min="3"
-                    max="48"
-                    step="3"
-                    value={tenure}
-                    onChange={(e) => setTenure(Number(e.target.value))}
-                    className="w-full h-2 bg-teal-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
-                  />
-                  <div className="flex justify-between text-xs text-gray-600 mt-1">
-                    <span>3 months</span>
-                    <span>48 months</span>
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-base font-medium text-gray-700">Rate of interest (p.a)</label>
+                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                    <input
+                      type="number"
+                      value={interestRate}
+                      onChange={(e) => setInterestRate(Number(e.target.value))}
+                      step="0.1"
+                      className="w-16 bg-transparent text-right font-semibold text-gray-900 focus:outline-none"
+                    />
+                    <span className="text-gray-500 ml-1">%</span>
                   </div>
                 </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="25"
+                  step="0.1"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(Number(e.target.value))}
+                  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #00d09c 0%, #00d09c ${(interestRate / 25) * 100}%, #e5e7eb ${(interestRate / 25) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>0%</span>
+                  <span>25%</span>
+                </div>
+              </div>
 
-                <div className="bg-white rounded-lg p-4 border-2 border-primary-300">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-gray-700">Monthly EMI</span>
-                    <span className="text-3xl font-bold text-primary-600">₹{Math.round(emi).toLocaleString()}</span>
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-base font-medium text-gray-700">Loan tenure</label>
+                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                    <input
+                      type="number"
+                      value={Math.floor(tenure / 12)}
+                      onChange={(e) => setTenure(Number(e.target.value) * 12)}
+                      className="w-12 bg-transparent text-right font-semibold text-gray-900 focus:outline-none"
+                    />
+                    <span className="text-gray-500 ml-1">Yr</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                    <div>
-                      <div className="text-sm text-gray-600">Total Interest</div>
-                      <div className="font-semibold text-gray-900">₹{Math.round(totalInterest).toLocaleString()}</div>
+                </div>
+                <input
+                  type="range"
+                  min="6"
+                  max="360"
+                  step="6"
+                  value={tenure}
+                  onChange={(e) => setTenure(Number(e.target.value))}
+                  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #00d09c 0%, #00d09c ${((tenure - 6) / (360 - 6)) * 100}%, #e5e7eb ${((tenure - 6) / (360 - 6)) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>6m</span>
+                  <span>30Yr</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side - Results with Pie Chart */}
+            <div className="lg:col-span-2">
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
+                <div className="text-center mb-6">
+                  <div className="text-sm text-gray-600 mb-1">Monthly EMI</div>
+                  <div className="text-4xl font-bold text-emerald-600">₹{Math.round(emi).toLocaleString()}</div>
+                </div>
+
+                <div className="flex justify-center mb-4">
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Principal', value: loanAmount, color: '#00d09c' },
+                          { name: 'Interest', value: Math.round(totalInterest), color: '#fbbf24' }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        <Cell fill="#00d09c" />
+                        <Cell fill="#fbbf24" />
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
+                      <span className="text-sm text-gray-600">Principal amount</span>
                     </div>
-                    <div>
-                      <div className="text-sm text-gray-600">Total Payment</div>
-                      <div className="font-semibold text-gray-900">₹{Math.round(totalPayment).toLocaleString()}</div>
+                    <span className="font-semibold text-gray-900">₹{loanAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                      <span className="text-sm text-gray-600">Total interest</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">₹{Math.round(totalInterest).toLocaleString()}</span>
+                  </div>
+                  <div className="pt-3 border-t border-emerald-200">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-700">Total amount</span>
+                      <span className="text-lg font-bold text-gray-900">₹{Math.round(totalPayment).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Repayment Schedule Preview</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={repaymentSchedule.slice(0, 12)}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
-                  <YAxis />
-                  <Tooltip formatter={(value: any) => `₹${value.toLocaleString()}`} />
-                  <Legend />
-                  <Line type="monotone" dataKey="emi" stroke="#1890ff" strokeWidth={2} name="EMI Amount" />
-                  <Line type="monotone" dataKey="balance" stroke="#ff7875" strokeWidth={2} name="Balance" />
-                </LineChart>
-              </ResponsiveContainer>
+          {/* Amortization Table */}
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Your Amortization Details</h3>
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('yearly')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'yearly' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Yearly
+                </button>
+                <button
+                  onClick={() => setViewMode('monthly')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'monthly' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Monthly
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-gray-200">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Period</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Principal (₹)</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Interest (₹)</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Total Payment (₹)</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Balance (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(viewMode === 'yearly' ? yearlySchedule : repaymentSchedule.slice(0, 12)).map((item, idx) => (
+                    <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4 text-sm text-gray-900">{viewMode === 'yearly' ? item.year : item.month}</td>
+                      <td className="py-3 px-4 text-sm text-right text-gray-900">{item.principal.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-sm text-right text-gray-900">{item.interest.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-sm text-right font-semibold text-gray-900">{item.emi.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-sm text-right text-gray-600">{item.balance.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
