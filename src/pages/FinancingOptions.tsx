@@ -6,7 +6,6 @@ export default function FinancingOptions() {
   const [loanAmount, setLoanAmount] = useState(100000);
   const [tenure, setTenure] = useState(12);
   const [interestRate, setInterestRate] = useState(6.5);
-  const [showEligibility, setShowEligibility] = useState(false);
   const [viewMode, setViewMode] = useState<'yearly' | 'monthly'>('yearly');
   
   // Eligibility form data
@@ -208,15 +207,9 @@ export default function FinancingOptions() {
       return;
     }
     setEligibilityChecked(true);
-    setShowEligibility(true);
   };
 
-  const eligibilityCriteriaLegacy = [
-    { label: 'Age', requirement: '21-65 years', userStatus: 'Eligible', pass: true },
-    { label: 'Income', requirement: '₹15,000/month minimum', userStatus: 'Verified', pass: true },
-    { label: 'Credit Score', requirement: '650+ (Optional)', userStatus: 'Not Required', pass: true },
-    { label: 'Employment', requirement: 'Salaried/Self-employed', userStatus: 'Confirmed', pass: true },
-  ];
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -777,7 +770,6 @@ export default function FinancingOptions() {
               <button
                 onClick={() => {
                   setEligibilityChecked(false);
-                  setShowEligibility(true);
                 }}
                 className="w-full btn-secondary py-3"
               >
