@@ -112,6 +112,9 @@ export default function LandingPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">The Healthcare Cost Problem</h2>
             <p className="text-xl text-gray-600">85% of patients face unexpected medical bills</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Source: <a href="https://www.who.int/news-room/fact-sheets/detail/universal-health-coverage-(uhc)" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">World Health Organization</a>
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {problems.map((problem, idx) => (
@@ -214,6 +217,30 @@ export default function LandingPage() {
                 <p className="text-gray-600">{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Badges & Partners */}
+      <section className="py-12 bg-white border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-sm text-gray-500 mb-8 uppercase tracking-wider">Trusted By Leading Healthcare Organizations</p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center">
+            <a href="https://www.apollohospitals.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-600 transition-colors">
+              <div className="text-xl font-bold">Apollo Hospitals</div>
+            </a>
+            <a href="https://www.manipalhospitals.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-600 transition-colors">
+              <div className="text-xl font-bold">Manipal Hospitals</div>
+            </a>
+            <a href="https://www.fortishealthcare.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-600 transition-colors">
+              <div className="text-xl font-bold">Fortis Healthcare</div>
+            </a>
+            <a href="https://www.starhealth.in/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-600 transition-colors">
+              <div className="text-xl font-bold">Star Health</div>
+            </a>
+            <a href="https://www.hdfcergo.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-600 transition-colors">
+              <div className="text-xl font-bold">HDFC ERGO</div>
+            </a>
           </div>
         </div>
       </section>

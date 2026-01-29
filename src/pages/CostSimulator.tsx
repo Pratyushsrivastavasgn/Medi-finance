@@ -240,7 +240,22 @@ export default function CostSimulator() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold text-gray-900">{hospital.name}</div>
+                      <div className="font-semibold text-gray-900">
+                        {hospital.name}
+                        <a 
+                          href={hospital.name.includes('Apollo') ? 'https://www.apollohospitals.com/' : 
+                                hospital.name.includes('Manipal') ? 'https://www.manipalhospitals.com/' : 
+                                hospital.name.includes('Fortis') ? 'https://www.fortishealthcare.com/' : 
+                                hospital.name.includes('Columbia') ? 'https://www.columbiaasia.com/' : 
+                                hospital.name.includes('Narayana') ? 'https://www.narayanahealth.org/' : '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="ml-2 text-xs text-primary-600 hover:text-primary-700 hover:underline"
+                        >
+                          (Visit Website)
+                        </a>
+                      </div>
                       <div className="text-sm text-gray-600">Base Price: ₹{(hospital.basePrice / 1000).toFixed(0)}K</div>
                     </div>
                     <Building2 className="h-8 w-8 text-primary-600" />

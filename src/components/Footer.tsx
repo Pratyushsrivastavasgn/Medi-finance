@@ -19,10 +19,10 @@ export default function Footer() {
               Empowering patients with transparent healthcare financing decisions.
             </p>
             <div className="flex space-x-3 mt-4">
-              <a href="#" className="hover:text-primary-400 transition-colors">
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors" aria-label="LinkedIn">
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="hover:text-primary-400 transition-colors">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors" aria-label="Twitter">
                 <Twitter className="h-5 w-5" />
               </a>
             </div>
@@ -43,10 +43,10 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-primary-400 transition-colors">How It Works</a></li>
-              <li><a href="#" className="hover:text-primary-400 transition-colors">For Hospitals</a></li>
-              <li><a href="#" className="hover:text-primary-400 transition-colors">For Insurers</a></li>
-              <li><a href="#" className="hover:text-primary-400 transition-colors">API Documentation</a></li>
+              <li><a href="https://www.mohfw.gov.in/" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">Ministry of Health</a></li>
+              <li><a href="https://www.irdai.gov.in/" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">IRDAI Guidelines</a></li>
+              <li><a href="https://www.nhp.gov.in/" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">National Health Portal</a></li>
+              <li><a href="https://pmjay.gov.in/" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">Ayushman Bharat</a></li>
             </ul>
           </div>
 

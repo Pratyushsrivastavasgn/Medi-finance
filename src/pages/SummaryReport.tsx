@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Download, Share2, CheckCircle, Shield, CreditCard, FileText, ArrowLeft } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 export default function SummaryReport() {
   const location = useLocation();
@@ -27,6 +29,49 @@ export default function SummaryReport() {
     year: 'numeric' 
   });
 
+  const handleDownloadPDF = async () => {
+    const reportElement = document.getElementById('summary-report');
+    if (!reportElement) return;
+
+    try {
+      const canvas = await html2canvas(reportElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: reportElement.scrollWidth,
+        windowHeight: reportElement.scrollHeight
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`MediFinance-Report-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,7 +86,7 @@ export default function SummaryReport() {
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </button>
-            <button className="btn-primary flex items-center">
+            <button onClick={handleDownloadPDF} className="btn-primary flex items-center">
               <Download className="h-4 w-4 mr-2" />
               Download PDF
             </button>
@@ -49,7 +94,7 @@ export default function SummaryReport() {
         </div>
 
         {/* Report Container */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div id="summary-report" className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           {/* Report Header */}
           <div className="bg-gradient-to-r from-primary-600 to-teal-600 text-white p-8">
             <div className="flex items-start justify-between mb-6">

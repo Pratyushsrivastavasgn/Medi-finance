@@ -293,7 +293,18 @@ export default function CostComparison() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">{hospital.name}</h3>
+                      <a 
+                        href={hospital.id === '1' ? 'https://www.apollohospitals.com/' : 
+                              hospital.id === '2' ? 'https://www.manipalhospitals.com/' : 
+                              hospital.id === '3' ? 'https://www.columbiaasia.com/' : 
+                              hospital.id === '4' ? 'https://www.fortishealthcare.com/' : 
+                              hospital.id === '5' ? 'https://www.narayanahealth.org/' : '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xl font-bold text-primary-600 hover:text-primary-700 mb-1 inline-block hover:underline"
+                      >
+                        {hospital.name}
+                      </a>
                       <div className="flex items-center text-gray-600 text-sm mb-2">
                         <MapPin className="h-4 w-4 mr-1" />
                         <span>{hospital.location}</span>
@@ -360,7 +371,18 @@ export default function CostComparison() {
 
                 <div className="mt-4 lg:mt-0 lg:ml-6 flex flex-col gap-2">
                   <button className="btn-primary whitespace-nowrap">Select Hospital</button>
-                  <button className="btn-secondary whitespace-nowrap text-sm">View Details</button>
+                  <a 
+                    href={hospital.id === '1' ? 'https://www.apollohospitals.com/' : 
+                          hospital.id === '2' ? 'https://www.manipalhospitals.com/' : 
+                          hospital.id === '3' ? 'https://www.columbiaasia.com/' : 
+                          hospital.id === '4' ? 'https://www.fortishealthcare.com/' : 
+                          hospital.id === '5' ? 'https://www.narayanahealth.org/' : '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary whitespace-nowrap text-sm text-center"
+                  >
+                    View Details
+                  </a>
                 </div>
               </div>
             </div>

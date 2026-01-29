@@ -268,13 +268,26 @@ export default function FinancingOptions() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button 
-                      className="btn-primary flex-1"
-                      disabled={!inRange}
+                    <a
+                      href={provider.id === '2' ? 'https://www.hdfcbank.com/personal/borrow/popular-loans/personal-loan' :
+                            provider.id === '3' ? 'https://www.bajajfinserv.in/personal-loan' :
+                            provider.id === '4' ? 'https://www.lazypay.in/' : '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`btn-primary flex-1 text-center ${!inRange ? 'opacity-50 pointer-events-none' : ''}`}
                     >
                       Apply Now
-                    </button>
-                    <button className="btn-secondary flex-1">View Details</button>
+                    </a>
+                    <a 
+                      href={provider.id === '2' ? 'https://www.hdfcbank.com/personal/borrow/popular-loans/personal-loan' :
+                            provider.id === '3' ? 'https://www.bajajfinserv.in/personal-loan' :
+                            provider.id === '4' ? 'https://www.lazypay.in/' : '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary flex-1 text-center"
+                    >
+                      View Details
+                    </a>
                   </div>
                 </div>
               );
